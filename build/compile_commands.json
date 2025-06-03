@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/slice/code-projects/cpp/PID-controller-sim/build",
+  "command": "/usr/bin/g++ -isystem /usr/include/SDL2 -g -std=gnu++17 -o CMakeFiles/cmake-project-folder.dir/src/main.cpp.o -c /home/slice/code-projects/cpp/PID-controller-sim/src/main.cpp",
+  "file": "/home/slice/code-projects/cpp/PID-controller-sim/src/main.cpp",
+  "output": "CMakeFiles/cmake-project-folder.dir/src/main.cpp.o"
+}
+]
