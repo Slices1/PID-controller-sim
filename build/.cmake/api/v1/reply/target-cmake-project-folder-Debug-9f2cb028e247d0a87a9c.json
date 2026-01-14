@@ -90,7 +90,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.3000.9",
+				"fragment" : "/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.3200.10",
 				"role" : "libraries"
 			},
 			{

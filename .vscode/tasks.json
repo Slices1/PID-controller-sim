@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Make with kiss_makefile",
+			"type": "shell",
+			"command": "make",
+			"args": [
+				"-f",
+				"kiss_makefile"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": []
+		}
+	]
+}

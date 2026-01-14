@@ -1,14 +1,3 @@
-# ninja log v6
-1	1190	1740641746688517049	CMakeFiles/cmake-project-folder.dir/src/main.cpp.o	7ce4e042c52b9098
-1190	1286	1740641747876500759	cmake-project-folder	7e231c3752899e3c
-1	943	1740501355050170406	CMakeFiles/cmake-project-folder.dir/main.cpp.o	adb4c124c6055643
-19	1149	1740657329123337349	CMakeFiles/cmake-project-folder.dir/src/main.cpp.o	7ce4e042c52b9098
-1149	1223	1740657330251321244	cmake-project-folder	7e231c3752899e3c
-3	2871	1740657473093372642	CMakeFiles/cmake-project-folder.dir/src/main.cpp.o	7ce4e042c52b9098
-2871	2969	1740657475961331706	cmake-project-folder	7e231c3752899e3c
-2	1498	1740657501149423714	CMakeFiles/cmake-project-folder.dir/src/main.cpp.o	7ce4e042c52b9098
-1498	1588	1740657502645416592	cmake-project-folder	7e231c3752899e3c
-1	1296	1740657521393247768	CMakeFiles/cmake-project-folder.dir/src/main.cpp.o	7ce4e042c52b9098
-1296	1382	1740657522689232638	cmake-project-folder	7e231c3752899e3c
-1	1183	1740657865053331825	CMakeFiles/cmake-project-folder.dir/src/main.cpp.o	7ce4e042c52b9098
-1183	1280	1740657866237316929	cmake-project-folder	7e231c3752899e3c
+# ninja log v7
+2	961	1768314648617858016	CMakeFiles/cmake-project-folder.dir/src/main.cpp.o	4503c44952854ba7
+961	1037	1768314649576849428	cmake-project-folder	d048d79cdcb3c33f

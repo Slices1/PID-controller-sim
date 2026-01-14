@@ -91,7 +91,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "3"
+			"value" : "9"
 		},
 		{
 			"name" : "CMAKE_COMMAND",
