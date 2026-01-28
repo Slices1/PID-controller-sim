@@ -1,8 +1,8 @@
 [
 {
   "directory": "/home/slice/code-projects/cpp/PID-controller-sim/build",
-  "command": "/usr/bin/g++ -isystem /usr/include/SDL2 -g -std=gnu++17 -o CMakeFiles/cmake-project-folder.dir/src/main.cpp.o -c /home/slice/code-projects/cpp/PID-controller-sim/src/main.cpp",
+  "command": "/usr/bin/g++ -I/usr/include/x86_64-linux-gnu/SDL2 -I/usr/include/SDL2 -I/usr/include/libpng16 -I/usr/include/webp -I/usr/include/harfbuzz -I/usr/include/freetype2 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -g -std=gnu++17 -o CMakeFiles/PID-Controller.dir/src/main.cpp.o -c /home/slice/code-projects/cpp/PID-controller-sim/src/main.cpp",
   "file": "/home/slice/code-projects/cpp/PID-controller-sim/src/main.cpp",
-  "output": "CMakeFiles/cmake-project-folder.dir/src/main.cpp.o"
+  "output": "CMakeFiles/PID-Controller.dir/src/main.cpp.o"
 }
 ]

@@ -1,3 +1,3 @@
-/home/slice/code-projects/cpp/PID-controller-sim/build/CMakeFiles/cmake-project-folder.dir
+/home/slice/code-projects/cpp/PID-controller-sim/build/CMakeFiles/PID-Controller.dir
 /home/slice/code-projects/cpp/PID-controller-sim/build/CMakeFiles/edit_cache.dir
 /home/slice/code-projects/cpp/PID-controller-sim/build/CMakeFiles/rebuild_cache.dir

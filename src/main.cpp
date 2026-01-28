@@ -1,13 +1,14 @@
 	
-	#include <iostream>
 	#include <vector>
 	#include <time.h>
 	#include <limits> // for integer limits to convert integer angle to radians
 	#include <cmath> // for M_PI and trig
-	
-	#include <SDL.h>
-	#include <SDL_image.h>
-	#include <SDL_ttf.h>
+	#include <iostream>
+	#include <sstream>
+
+	#include <SDL.h>          // NOT <SDL2/SDL.h>
+	#include <SDL_image.h>    // NOT <SDL2/SDL_image.h>
+	#include <SDL_ttf.h>      // NOT <SDL2/SDL_ttf.h>
 	
 	using namespace std;
 	
@@ -62,6 +63,172 @@
 			return x*x + y*y;
 		}
 	};
+
+class LineGraph {
+private:
+    float maxValue = -10000000.0f; // initialise to minimum expected value 
+    float minValue = 10000000.0f;  // initialise to maximum expected value
+    Vec2 position;                 // top left of graph space
+    vector<float> values;
+    
+    // SDL2 specific text handling
+    SDL_Renderer* renderer = nullptr;
+    TTF_Font* font = nullptr;
+    
+    SDL_Texture* titleTexture = nullptr;
+    SDL_Texture* maxLabelTexture = nullptr;
+    SDL_Texture* minLabelTexture = nullptr;
+    
+    SDL_Rect titleRect = {0,0,0,0};
+    SDL_Rect maxRect = {0,0,0,0};
+    SDL_Rect minRect = {0,0,0,0};
+
+    float graphWidth = 475.0f;
+    float graphHeight = 150.0f;
+    int padding = 5;
+
+    // Helper to create a texture from string
+    SDL_Texture* createTextTexture(string text, SDL_Rect &rect) {
+        if (!font || !renderer) return nullptr;
+        
+        SDL_Color textColor = {0, 0, 0, 255}; // Black text
+        SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+        if (!surface) return nullptr;
+        
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        rect.w = surface->w;
+        rect.h = surface->h;
+        
+        SDL_FreeSurface(surface);
+        return texture;
+    }
+    
+public:
+    // Constructor requires Renderer and Font to generate labels
+    LineGraph(Vec2 position1, string graphTitleName, SDL_Renderer* linkedRenderer, TTF_Font* linkedFont) 
+        : position(position1), renderer(linkedRenderer), font(linkedFont) {
+        
+        // Generate Title Texture immediately
+        titleTexture = createTextTexture(graphTitleName, titleRect);
+        
+        // Position title: Center middle above graph
+        // Note: We use existing rect.w/h calculated in createTextTexture
+        titleRect.x = (int)(position.x + graphWidth/2 - titleRect.w/2);
+        titleRect.y = (int)(position.y - titleRect.h - 5); 
+
+        // Initial placeholder labels
+        updateLabels();
+    }
+
+    LineGraph() { 
+        // Empty constructor
+    }
+
+    // Destructor to clean up textures
+    ~LineGraph() {
+        if (titleTexture) SDL_DestroyTexture(titleTexture);
+        if (maxLabelTexture) SDL_DestroyTexture(maxLabelTexture);
+        if (minLabelTexture) SDL_DestroyTexture(minLabelTexture);
+    }
+    
+    void updateLabels() {
+        // Clear old textures
+        if (maxLabelTexture) SDL_DestroyTexture(maxLabelTexture);
+        if (minLabelTexture) SDL_DestroyTexture(minLabelTexture);
+
+        // Round strings
+        std::ostringstream minStream, maxStream;
+        
+        // Handle cases where no data exists yet
+        float displayMin = (minValue == 10000000.0f) ? 0 : minValue;
+        float displayMax = (maxValue == -10000000.0f) ? 0 : maxValue;
+
+        minStream << round(displayMin);
+        maxStream << round(displayMax);
+
+        // Generate new textures
+        minLabelTexture = createTextTexture(minStream.str(), minRect);
+        maxLabelTexture = createTextTexture(maxStream.str(), maxRect);
+
+        // Position Labels
+        // Max label (Top Left)
+        maxRect.x = (int)(position.x - maxRect.w - 5);
+        maxRect.y = (int)(position.y);
+
+        // Min label (Bottom Left)
+        minRect.x = (int)(position.x - minRect.w - 5);
+        minRect.y = (int)(position.y + graphHeight - minRect.h);
+    }
+    
+    void appendValue(float value) {
+        values.push_back(value);
+        
+        bool limitsChanged = false;
+        // Update min and max
+        if (value < minValue) {
+            minValue = value;
+            limitsChanged = true;
+        }
+        if (value > maxValue) {
+            maxValue = value;
+            limitsChanged = true;
+        }
+
+        // Only regenerate text textures if the numbers actually changed
+        // This is much faster than doing it every frame
+        if (limitsChanged) {
+            updateLabels();
+        }
+    }
+    
+    void drawGraph() {
+        if (!renderer) return;
+
+        // 1. Draw Data Points (Red Lines)
+        SDL_SetRenderDrawColor(renderer, 220, 50, 50, 255);
+
+        float range = maxValue - minValue;
+        if (range == 0) range = 1.0f; // Prevent divide by zero
+
+        float xSpacing = graphWidth / (values.size() > 1 ? values.size() : 1);
+
+        for (size_t i = 1; i < values.size(); i++) {
+            float y1 = graphHeight - padding - (graphHeight - padding * 2) * (values[i - 1] - minValue) / range;
+            float y2 = graphHeight - padding - (graphHeight - padding * 2) * (values[i] - minValue) / range;
+
+            Vec2 start = position + Vec2(xSpacing * (i - 1), y1);
+            Vec2 end = position + Vec2(xSpacing * i, y2);
+            
+            SDL_RenderDrawLine(renderer, (int)start.x, (int)start.y, (int)end.x, (int)end.y);
+        }
+
+        // 2. Draw Axes (Black)
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        
+        // Y Axis
+        SDL_RenderDrawLine(renderer, (int)position.x, (int)position.y, (int)position.x, (int)(position.y + graphHeight));
+        // X Axis
+        SDL_RenderDrawLine(renderer, (int)position.x, (int)(position.y + graphHeight), (int)(position.x + graphWidth), (int)(position.y + graphHeight));
+
+        // 3. Render Text Labels
+        if (titleTexture) SDL_RenderCopy(renderer, titleTexture, NULL, &titleRect);
+        if (maxLabelTexture) SDL_RenderCopy(renderer, maxLabelTexture, NULL, &maxRect);
+        if (minLabelTexture) SDL_RenderCopy(renderer, minLabelTexture, NULL, &minRect);
+    }
+    
+    void resetValues() {
+        values.clear();
+        maxValue = -10000000.0f; 
+        minValue = 10000000.0f;
+        updateLabels(); // Reset labels to 0
+    }
+
+    float getValue(int index) {
+        if(index >= 0 && index < values.size())
+            return values[index];
+        return 0.0f;
+    }
+};
 	
 	// Gravity in pixels per second squared
 	const float gravity = 9.81f; // 1 metre will be 10 pixels?
@@ -172,6 +339,8 @@
 		float valueDiff;
 		float displacement;
 		float value;
+
+		float sensorValues[4] = {0};
 		
 		// init heatmap
 		// A static array of 4 colors:  (black, blue, cyan, green, red)
@@ -279,14 +448,23 @@
 			
 			SDL_GetMouseState(&mouseX, &mouseY);
 			
-			sensorArrayVel.x += xPID.update(errorX, dT);
-			sensorArrayPos.x += sensorArrayVel.x * dT;
+			// calculate scale
+			float avgSensorValue = (sensorValues[0] + sensorValues[1] + sensorValues[2] + sensorValues[3])/4;
+			// cout << "avg sensor val: " << avgSensorValue << endl;
+			float scale = avgSensorValue == 0 ? 1 :  0.01/(avgSensorValue) + 0.08;
+			// constrain scale
+			cout << "scale before constraining: " << scale << endl;
+			scale = scale > 10e3  ? 10e3  : scale;
+			scale = scale < 1 ? 1 : scale;
+
+			sensorArrayVel.x += scale * xPID.update(errorX, dT);
+			sensorArrayVel.y += scale * yPID.update(errorY, dT);
 			
-			sensorArrayVel.y += yPID.update(errorY, dT);
+			sensorArrayPos.x += sensorArrayVel.x * dT;
 			sensorArrayPos.y += sensorArrayVel.y * dT;
 			
 			{ // get sensor values and errors
-				float sensorValues[4];
+				sensorValues[4];
 				int index = 0;
 				for (int i=-1; i<=1; i+=2) {
 					// goes from top, clockwise
@@ -299,8 +477,10 @@
 							+ (mouseY - sensorArrayPos.y)*(mouseY - sensorArrayPos.y));
 							index++;
 						}
-						errorY = 200*addNoiseToSensorValue(sensorValues[2] - sensorValues[0]);
-						errorX = -200*addNoiseToSensorValue(sensorValues[3] - sensorValues[1]);
+						errorY = 200*(sensorValues[2] - sensorValues[0]);
+						// errorY = 200*addNoiseToSensorValue(sensorValues[2] - sensorValues[0]);
+						errorX = -200*(sensorValues[3] - sensorValues[1]);
+						// errorX = -200*addNoiseToSensorValue(sensorValues[3] - sensorValues[1]);
 					}
 					
 					// Render loop
@@ -441,3 +621,9 @@
 			//SDL_RenderCopy(renderer, box, NULL, &rect);
 			// int x, y; SDL_GetMouseState(&x, &y);
 			
+
+			// To do:
+			// render a graph that shows the PID response
+			// 		the distance I should test over is 
+
+
